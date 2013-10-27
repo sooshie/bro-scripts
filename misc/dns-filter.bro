@@ -23,7 +23,7 @@ function filter_dnslog(rec: DNS::Info) : bool
         return T;
     if ( filter_bonjour_requests && /^(b|db|r|dr|lb)\._dns-sd\._udp/ in rec$query )
         return F;
-    if ( req$query in filter_dnslog_hostnames )
+    if ( rec$query in filter_dnslog_hostnames )
         return F;
     return T;
     }
