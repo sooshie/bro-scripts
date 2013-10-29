@@ -19,6 +19,9 @@ module DynamicDNS;
 # Requires Bro 2.1
 # Mike (sooshie@gmail.com)
 
+##JP Bourget 10/29/13
+##Updated for Bro 2.2 - byte_len is depricated and replaced with | | (2 pipes)
+
 
 # To ignore specific hostnames just add them to ignore_dyndns_fqdns
 # Set the name/location of the txt file that contains the domains via redef of dyndns_filename
@@ -41,7 +44,7 @@ function get_domain_2level(domain: string): string
     local result = find_last(domain, /\.[^\.]+\.[^\.]+$/);
     if ( result == "" )
         return domain;
-    return sub_bytes(result, 2, byte_len(result));
+    return sub_bytes(result, 2, |result|); updated for bro 2.2
     }
 
 function get_domain_3level(domain: string): string
@@ -49,7 +52,7 @@ function get_domain_3level(domain: string): string
     local result = find_last(domain, /\.[^\.]+\.[^\.]+\.[^\.]+$/);
     if ( result == "" )
         return domain;
-    return sub_bytes(result, 2, byte_len(result));
+    return sub_bytes(result, 2, |result|); #updated for bro 2.2
     }
 
 event bro_init()
@@ -59,6 +62,7 @@ event bro_init()
     }
 
 # for bro 2.1
+
 event Input::update_finished(name: string, source: string)
     {
     if ( name == "dynlist" )
