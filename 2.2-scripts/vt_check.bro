@@ -9,8 +9,7 @@ module VTCHECK;
 #
 # Mike (sooshie@gmail.com)
 #
-# Thanks VT for having a somewhat scrapable-site!
-# Please don't abuse them
+# Now with more API usage!
 #
 # for files that don't exist in VT, this script will cause an error similar to: 
 # rm: cannot remove `<sha256>.txt': No such file or directory
@@ -23,9 +22,10 @@ export {
         } &redef;
 
         const curl: string = "/usr/bin/curl" &redef;
-        #https://www.virustotal.com/en/file/35153c65e2e5a56a04d8642f391ef0e657181bfe99b3b759c1765a4b49e5acb5/analysis/
-        const url: string = "https://www.virustotal.com/en/file";
+        const url: string = "https://www.virustotal.com/vtapi/v2/file/report";
         const user_agent = "Bro VirusTotal Checker (thanks for being awesome)"  &redef;
+
+        const vt_apikey = "" &redef;
 
         redef enum Notice::Type += { VirusTotal::Result };
 }
@@ -48,28 +48,46 @@ event file_state_remove(f: fa_file)
         {
         add(checked_hashes[f$info$sha256]);
         local bodyfile = fmt("%s.txt", f$info$sha256);
-        when ( local result = Exec::run([$cmd=fmt("%s -k -A \"%s\" -o \"%s\" \"%s/%s/analysis/\"", curl, user_agent, bodyfile, url, f$info$sha256), 
+        when ( local result = Exec::run([$cmd=fmt("%s -k -A \"%s\" -o \"%s\" -d resource=%s -d apikey=%s \"%s\"", 
+                                         curl, user_agent, bodyfile, f$info$sha256, vt_apikey, url), 
                                          $read_files=set(bodyfile)]) )
             {
             if ( result?$files && bodyfile in result$files )
                 {
                 local body = fmt("%s", result$files[bodyfile]);
+                local context = "";
+                local subcon = "-";
                 if ( |body| > 0 )
                     {
-                    local one = find_all(body, /[0-9]+ out of [0-9]+ antivirus/);
-                    local context = "";
-                    local subcon = "-";
-                    if ( |one| > 0 )
-                        for ( r in one )
-                            context = r;
-                    # kind of hacky, but it seems to work well-enough for now
-                    if ( /Some of the detections were/ in body )
-                        { 
-                        one = find_all(fmt("%s", body), /Some of the detections were: [\/A-Za-z0-9.:!,\(\) _-]+   /);
-                        if ( |one| > 0 )
-                            for ( r in one )
-                                subcon = sub_bytes(r, 1, |r| - 4);
+                    local positives: string;
+                    local total: string;
+                    local elements = split(body, /,/);
+                    local results: vector of string;
+                    for ( e in elements )
+                        {
+                        local temp: string_array;
+                        if ( /\"positives\":/ in elements[e] )
+                            {
+                            temp = split(elements[e], /:/);
+                            positives = sub_bytes(temp[2], 2, |temp[2]|);
+                            }
+                        else if ( /\"total\":/ in elements[e] )
+                            {
+                            temp = split(elements[e], /:/);
+                            total = sub_bytes(temp[2], 2, |temp[2]|);
+                            }
+                        else if ( /\"result\":/ in elements[e] )
+                            {
+                            if ( ! ( / null/ in elements[e] ) )
+                                {
+                                temp = split(elements[e], /\"/);
+                                #print temp[4];
+                                results[|results|] = temp[4];
+                                }
+                            }
                         }
+                    context =  fmt("%s out of %s flagged as positive", positives, total);
+                    subcon = join_string_vec(results, ",");
                     if ( ! ( context == "" ) )
                         {
                         local id: conn_id;
