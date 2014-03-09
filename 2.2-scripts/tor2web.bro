@@ -14,6 +14,14 @@ export {
     const tor_tlds: set[string] { "onion", "exit" } &redef;
 }
 
+# Last ditch effort to find t2w services on other domains
+function onion_in_the_middle(domain: string): bool
+    {
+    if ( /\.onion\./ in domain )
+        return T;
+    return F;
+    }
+
 function get_2ld(domain: string): string
     {
     local result = find_last(domain, /\.[^\.]+\.[^\.]+$/);
@@ -38,7 +46,7 @@ event http_header(c: connection, is_orig: bool, name: string, value: string)
         {
         local domain = get_2ld(value);
         local tld = get_tld(value);
-        if ( ( domain in tor2web_domains ) || ( tld in tor_tlds ) )
+        if ( ( domain in tor2web_domains ) || ( tld in tor_tlds ) || onion_in_the_middle(value) )
             {
             NOTICE([$note=TOR2Web::HTTP, $msg="Found TOR2Web Hostname",
                     $sub=value, $conn=c, $suppress_for=30mins, 
@@ -56,7 +64,7 @@ event DNS::do_reply(c: connection, msg: dns_msg, ans: dns_answer, reply: string)
         { 
         local domain = get_2ld(c$dns$query);
         local tld = get_tld(c$dns$query);
-        if ( ( domain in tor2web_domains ) || ( tld in tor_tlds ) )
+        if ( ( domain in tor2web_domains ) || ( tld in tor_tlds ) || onion_in_the_middle(c$dns$query) )
             {
             NOTICE([$note=TOR2Web::DNS, $msg="Found TOR2Web Hostname",
                     $sub=c$dns$query, $conn=c, $suppress_for=30mins, 
@@ -72,7 +80,7 @@ event ssl_established(c: connection)
         {
         local domain = get_2ld(c$ssl$server_name);
         local tld = get_tld(c$ssl$server_name);
-        if ( ( domain in tor2web_domains ) || ( tld in tor_tlds ) )
+        if ( ( domain in tor2web_domains ) || ( tld in tor_tlds ) || onion_in_the_middle(c$ssl$server_name) )
             {
             NOTICE([$note=TOR2Web::SSL, $msg="Found TOR2Web Hostname",
                     $sub=c$ssl$server_name, $conn=c, $suppress_for=30mins, 
