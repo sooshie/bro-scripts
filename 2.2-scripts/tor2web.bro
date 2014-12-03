@@ -7,6 +7,9 @@ module TOR2Web;
 #
 # Tested on Bro 2.2
 # Mike (sooshie@gmail.com)
+#
+# Tested on Bro 2.3
+# Brian Kellogg
 
 export {
     redef enum Notice::Type += { TOR2Web::HTTP, TOR2Web::DNS, TOR2Web::SSL };
@@ -56,11 +59,11 @@ event http_header(c: connection, is_orig: bool, name: string, value: string)
         }
     }
 
-event DNS::do_reply(c: connection, msg: dns_msg, ans: dns_answer, reply: string)
+hook DNS::do_reply(c: connection, msg: dns_msg, ans: dns_answer, reply: string)
     {
     local dyn = F;
     local value: string;
-    if ( c$dns?$query)
+    if ((c?$dns) && (c$dns?$query))
         { 
         local domain = get_2ld(c$dns$query);
         local tld = get_tld(c$dns$query);
