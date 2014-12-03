@@ -22,6 +22,9 @@ module DynamicDNS;
 ##JP Bourget 10/29/13
 ##Updated for Bro 2.2 - byte_len is depricated and replaced with | | (2 pipes)
 
+## Brian Kellogg 12/2/2014
+## Updated for Bro 2.3 - DNS::do_reply is now a hook not an event, 
+## Added logic to check for conn$dns field before looking for conn$dns$query field - if ((c?$dns) && (c$dns?$query))
 
 # To ignore specific hostnames just add them to ignore_dyndns_fqdns
 # Set the name/location of the txt file that contains the domains via redef of dyndns_filename
@@ -44,7 +47,7 @@ function get_domain_2level(domain: string): string
     local result = find_last(domain, /\.[^\.]+\.[^\.]+$/);
     if ( result == "" )
         return domain;
-    return sub_bytes(result, 2, |result|); updated for bro 2.2
+    return sub_bytes(result, 2, |result|); #updated for bro 2.2
     }
 
 function get_domain_3level(domain: string): string
@@ -104,14 +107,14 @@ event http_header(c: connection, is_orig: bool, name: string, value: string)
         }
     }
 
-event DNS::do_reply(c: connection, msg: dns_msg, ans: dns_answer, reply: string)
+hook DNS::do_reply(c: connection, msg: dns_msg, ans: dns_answer, reply: string)
     {
     if ( ! dyndnslist_ready)
         return;
 
     local dyn = F;
     local value: string;
-    if ( c$dns?$query)
+    if ((c?$dns) && (c$dns?$query))
         { 
         value = c$dns$query;
         if ( value in ignore_dyndns_fqdns )
