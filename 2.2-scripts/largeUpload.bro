@@ -84,7 +84,10 @@ event connection_state_remove(c: connection)
                                 {
                                 # raise notice msg and format the time stamp for the sub message so that it is human readable
                                 NOTICE([$note=Multiple_Large_Outgoing_Tx, 
-								$msg=fmt("Dest received multiple large uploads from internal IP(s).  Dest name %s.", dst), $sub=fmt("Tx start: %s UTC, end: %s UTC", strftime("%m/%d/%Y %H:%M:%S", c$start_time), strftime("%m/%d/%Y %H:%M:%S", endTime)), $conn=c, $suppress_for=480mins, $identifier=cat(c$id$resp_h)]);
+					$msg=fmt("Dest received multiple large uploads from internal IP(s).  Dest name %s.", dst), 
+					$sub=fmt("Tx start: %s UTC, end: %s UTC", strftime("%m/%d/%Y %H:%M:%S", c$start_time), 
+					strftime("%m/%d/%Y %H:%M:%S", endTime)), $conn=c, $suppress_for=480mins, 
+					$identifier=cat(c$id$resp_h)]);
                                 }
 
                         # now lookup orig IP DNS record
@@ -97,7 +100,10 @@ event connection_state_remove(c: connection)
                                         {
                                         # raise notice msg and format the time stamp for the sub message so that it is human readable
                                         NOTICE([$note=Multiple_Large_Outgoing_Tx, 
-										$msg=fmt("Orig Txed multiple large uploads.  Source name %s.", src), $sub=fmt("Tx start: %s UTC, end: %s UTC", strftime("%m/%d/%Y %H:%M:%S", c$start_time), strftime("%m/%d/%Y %H:%M:%S", endTime)), $conn=c, $suppress_for=480mins, $identifier=cat(c$id$orig_h)]);
+						$msg=fmt("Orig Txed multiple large uploads.  Source name %s.", src), 
+						$sub=fmt("Tx start: %s UTC, end: %s UTC", 
+						strftime("%m/%d/%Y %H:%M:%S", c$start_time), strftime("%m/%d/%Y %H:%M:%S", endTime)), 
+						$conn=c, $suppress_for=480mins, $identifier=cat(c$id$orig_h)]);
                                         }
 
                                 # if num_bytes sent over certain size then send an email alert else just raise a notice log entry
@@ -105,13 +111,19 @@ event connection_state_remove(c: connection)
                                         {
                                         # raise notice msg and format the time stamp for the sub message so that it is human readable
                                         NOTICE([$note=Very_Large_Outgoing_Tx, 
-										$msg=fmt("Orig transmitted %d bytes to resp.  Duration %s sec.  Source is %s.  Destination is %s.  Connection UID %s.", c$orig$num_bytes_ip, c$duration, src, dst, c$uid), $sub=fmt("Tx start: %s UTC, end: %s UTC", strftime("%m/%d/%Y %H:%M:%S", c$start_time), strftime("%m/%d/%Y %H:%M:%S", endTime)), $conn=c]);
+						$msg=fmt("Orig transmitted %d bytes to resp.  Duration %s sec.  Source is %s.  Destination is %s.  Connection UID %s.", 
+						c$orig$num_bytes_ip, c$duration, src, dst, c$uid), 
+						$sub=fmt("Tx start: %s UTC, end: %s UTC", strftime("%m/%d/%Y %H:%M:%S", c$start_time), 
+						strftime("%m/%d/%Y %H:%M:%S", endTime)), $conn=c]);
                                         }
                                 else
                                         {
                                         # raise notice msg and format the time stamp for the sub message so that it is human readable
                                         NOTICE([$note=Large_Outgoing_Tx, 
-										$msg=fmt("Orig transmitted %d bytes to resp.  Duration %s sec.  Source is %s.  Destination is %s.  Connection UID %s.", c$orig$num_bytes_ip, c$duration, src, dst, c$uid), $sub=fmt("Tx start: %s UTC, end: %s UTC", strftime("%m/%d/%Y %H:%M:%S", c$start_time), strftime("%m/%d/%Y %H:%M:%S", endTime)), $conn=c]);
+						$msg=fmt("Orig transmitted %d bytes to resp.  Duration %s sec.  Source is %s.  Destination is %s.  Connection UID %s.", 
+						c$orig$num_bytes_ip, c$duration, src, dst, c$uid), 
+						$sub=fmt("Tx start: %s UTC, end: %s UTC", 
+						strftime("%m/%d/%Y %H:%M:%S", c$start_time), strftime("%m/%d/%Y %H:%M:%S", endTime)), $conn=c]);
                                         }
                                 }
                         }
