@@ -23,7 +23,7 @@ type dns_fluxer: record {
 
 export {        
 	redef enum Notice::Type += {
-        	DNS::FastFlux,
+        	FastFlux,
         	};
         const flux_host_count_weight = 1.32 &redef;
         const flux_ASN_count_weight = 18.54 &redef;
@@ -50,7 +50,7 @@ function check_dns_fluxiness(query: string, c: connection, ans: dns_answer)
                 if ( fluxer$score > flux_threshold )
                         {
                         add fast_fluxers[query];
-                        NOTICE([$note=DNS::FastFlux,
+                        NOTICE([$note=FastFlux,
                                 $msg=fmt("%.6f Flux score for %s is %f (%d hosts in %d distinct ASNs %f asns/ips)",
                                 network_time(), query, fluxer$score, |fluxer$A_hosts|, |fluxer$ASNs|, ASN_disparity),
                                 $sub=fmt("%s", ans), $conn=c], $suppress_for=1sec, $identifier=cat(c$id$orig_h,c$id$resp_h));
