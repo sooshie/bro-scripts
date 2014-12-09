@@ -4,6 +4,9 @@
 # Changed script from creating log file to raising notices.
 #
 # Description: Detect Fast Flux DNS requests.
+# download and extract
+#	 wget http://pkgs.fedoraproject.org/repo/pkgs/ntop/GeoIPASNum.dat.gz/24f082fa05a2bac804b664f6a0893aba/GeoIPASNum.dat.gz
+# Place file extracted file in /usr/share/GeoIP/
 #
 # Needs to be documented
 #
