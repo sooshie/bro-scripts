@@ -21,7 +21,7 @@ global my_domain_suffixes = /MATCH_NOTHING/; # There is bug with setting blank p
 
 const maxTx = 15000000;          # single conn Tx bytes over which we want to alert on immediately
 const recordTx = 1000000;        # destination hosts to record if over this many bytes
-const maxNumUp = 5;              # number of large uploads per IP before an email is generated for that IP
+const maxNumUp = 13;              # number of large uploads per IP before an email is generated for that IP
 
 # table indexed by source IP of hosts that have triggered notices and/or emails
 # if the number of large uploads exceed maxNumup then generate email
