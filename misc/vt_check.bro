@@ -32,9 +32,9 @@ export {
 
 global checked_hashes: set[string] &synchronized;
 
-event file_new(f: fa_file)
+event file_sniff(f: fa_file, meta: fa_metadata)
     {
-    if ( f?$mime_type && f$mime_type in check_file_types )
+    if ( meta?$mime_type && meta$mime_type in check_file_types )
         {
         Files::add_analyzer(f, Files::ANALYZER_SHA256);
         }
@@ -61,26 +61,26 @@ event file_state_remove(f: fa_file)
                     {
                     local positives: string;
                     local total: string;
-                    local elements = split(body, /,/);
+                    local elements = split_string(body, /,/);
                     local results: vector of string;
                     for ( e in elements )
                         {
-                        local temp: string_array;
+                        local temp: string_vec;
                         if ( /\"positives\":/ in elements[e] )
                             {
-                            temp = split(elements[e], /:/);
+                            temp = split_string(elements[e], /:/);
                             positives = sub_bytes(temp[2], 2, |temp[2]|);
                             }
                         else if ( /\"total\":/ in elements[e] )
                             {
-                            temp = split(elements[e], /:/);
+                            temp = split_string(elements[e], /:/);
                             total = sub_bytes(temp[2], 2, |temp[2]|);
                             }
                         else if ( /\"result\":/ in elements[e] )
                             {
                             if ( ! ( / null/ in elements[e] ) )
                                 {
-                                temp = split(elements[e], /\"/);
+                                temp = split_string(elements[e], /\"/);
                                 #print temp[4];
                                 results[|results|] = temp[4];
                                 }
