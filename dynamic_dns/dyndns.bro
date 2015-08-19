@@ -11,7 +11,7 @@ module DynamicDNS;
 #
 # A good place to get started is malware-domains dyndns list, the following will put it in the 
 # right format for this script:
-# wget "http://www.malware-domains.com/files/dynamic_dns.zip" && unzip -c dynamic_dns.zip | tail -n +4 | grep -v ^# | grep -v ^$ | cut -f 1 > tmp.txt && echo -e "#fields\tdomain" > dynamic_dns.txt && cat tmp.txt >> dynamic_dns.txt && rm tmp.txt dynamic_dns.zip
+# wget "http://www.malware-domains.com/files/dynamic_dns.zip" && unzip -c dynamic_dns.zip | tail -n +4 | grep -v ^# | grep -v ^$ | cut -f 1 > tmp.txt && echo -e "#fields\tdomain" > dynamic_dns.txt && cat tmp.txt | cut -d '#' -f 1 >> dynamic_dns.txt && rm tmp.txt dynamic_dns.zip
 #
 # In additon to looking for the presence of dynamic DNS domains it will keep track (for 1 day)
 # all IPs that resolve to a dynamic DNS domain, and flag any traffic destined to those IP addresses
@@ -25,6 +25,9 @@ module DynamicDNS;
 ## Brian Kellogg 12/2/2014
 ## Updated for Bro 2.3 - DNS::do_reply is now a hook not an event, 
 ## Added logic to check for conn$dns field before looking for conn$dns$query field - if ((c?$dns) && (c$dns?$query))
+
+## Mike 8/17/2015
+## It apparently doesn't crash in Bro 2.4, and it still works
 
 # To ignore specific hostnames just add them to ignore_dyndns_fqdns
 # Set the name/location of the txt file that contains the domains via redef of dyndns_filename

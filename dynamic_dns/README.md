@@ -8,11 +8,11 @@ something.domain.tld.
 A good place to get started is malware-domains dyndns list, the following will put it in the 
 right format for this script:
 ```
-wget "http://www.malware-domains.com/files/dynamic_dns.zip" && unzip -c dynamic_dns.zip | tail -n +4 | grep -v ^# | grep -v ^$ | cut -f 1 > tmp.txt && echo -e "#fields\tdomain" > dynamic_dns.txt && cat tmp.txt >> dynamic_dns.txt && rm tmp.txt dynamic_dns.zip
+wget "http://www.malware-domains.com/files/dynamic_dns.zip" && unzip -c dynamic_dns.zip | tail -n +4 | grep -v ^# | grep -v ^$ | cut -f 1 > tmp.txt && echo -e "#fields\tdomain" > dynamic_dns.txt && cat tmp.txt | cut -d '#' -f 1 >> dynamic_dns.txt && rm tmp.txt dynamic_dns.zip
 ```
 
 In additon to looking for the presence of dynamic DNS domains it will keep track (for 1 day)
 all IPs that resolve to a dynamic DNS domain, and flag any traffic destined to those IP addresses
 
-Requires Bro 2.1
+Requires Bro 2.4
 Mike (sooshie@gmail.com)
