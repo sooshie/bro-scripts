@@ -28,8 +28,8 @@ export {
         const ignore_qtypes = [12,32] &redef;
         # total DNS payload size over which to alert on
         const dns_plsize_alert = 512 &redef;
-		# ports to ignore_DNS_names
-		const dns_ports_ignore: set[port] = {137/udp, 137/tcp} &redef;
+	# ports to ignore_DNS_names
+	const dns_ports_ignore: set[port] = {137/udp, 137/tcp} &redef;
         }
  
  
@@ -60,25 +60,25 @@ event bro_init()
     {
     local r1 = SumStats::Reducer($stream="Detect.dnsTunneling", $apply=set(SumStats::SUM));
     SumStats::create([$name="Detect.dnsTunneling",
-					$epoch=5min,
-					$reducers=set(r1),
-					$threshold = 5.0,
-					$threshold_val(key: SumStats::Key, result: SumStats::Result) =
-							{
-							return result["Detect.dnsTunneling"]$sum;
-							},
-					$threshold_crossed(key: SumStats::Key, result: SumStats::Result) =
-							{
-							local parts = split_string(key$str, /,/);
-							NOTICE([$note=DNS::Tunneling,
-									$id=[$orig_h=key$host,$orig_p=to_port(parts[0]),
-										$resp_h=to_addr(parts[1]),$resp_p=to_port(parts[2])],
-									$uid=parts[5],
-									$msg=fmt("%s", parts[3]),
-									$sub=fmt("%s", parts[4]),
-									$identifier=cat(key$host,parts[2]),
-									$suppress_for=5min
-									]);
+			$epoch=5min,
+			$reducers=set(r1),
+			$threshold = 5.0,
+			$threshold_val(key: SumStats::Key, result: SumStats::Result) =
+				{
+				return result["Detect.dnsTunneling"]$sum;
+				},
+			$threshold_crossed(key: SumStats::Key, result: SumStats::Result) =
+				{
+				local parts = split_string(key$str, /,/);
+				NOTICE([$note=DNS::Tunneling,
+					$id=[$orig_h=key$host,$orig_p=to_port(parts[0]),
+						$resp_h=to_addr(parts[1]),$resp_p=to_port(parts[2])],
+					$uid=parts[5],
+					$msg=fmt("%s", parts[3]),
+					$sub=fmt("%s", parts[4]),
+					$identifier=cat(key$host,parts[2]),
+					$suppress_for=5min
+					]);
 					}]);
     }
  
@@ -90,33 +90,33 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 		if (c$id$resp_p != 53/udp && c$id$resp_p != 53/tcp)
 			{
 			NOTICE([$note=DNS::Not_p53,
-					$conn=c,
-					$msg=fmt("Query: %s", query),
-					$sub=fmt("Query type: %s", qtype),
-					$identifier=cat(c$id$orig_h,c$id$resp_h),
-					$suppress_for=20min
-					]);
+				$conn=c,
+				$msg=fmt("Query: %s", query),
+				$sub=fmt("Query type: %s", qtype),
+				$identifier=cat(c$id$orig_h,c$id$resp_h),
+				$suppress_for=20min
+				]);
 			}
 
 		if (|query| > dns_query_oversize && ignore_DNS_names !in query)
 			{
 			NOTICE([$note=DNS::Oversized_Query,
-					$conn=c,
-					$msg=fmt("Query: %s", query),
-					$sub=fmt("Query type: %s", qtype),
-					$identifier=cat(c$id$orig_h,c$id$resp_h),
-					$suppress_for=20min
-					]);
+				$conn=c,
+				$msg=fmt("Query: %s", query),
+				$sub=fmt("Query type: %s", qtype),
+				$identifier=cat(c$id$orig_h,c$id$resp_h),
+				$suppress_for=20min
+				]);
 
 			SumStats::observe("Detect.dnsTunneling",
-							[$host=c$id$orig_h, 
-								$str=cat(c$id$orig_p,",",
-									c$id$resp_h,",",
-									c$id$resp_p,",",
-									cat("Query: ",query),",",
-									cat("Query type: ",qtype),",",
-									c$uid)],
-							[$num=1]);
+						[$host=c$id$orig_h, 
+						$str=cat(c$id$orig_p,",",
+							c$id$resp_h,",",
+							c$id$resp_p,",",
+							cat("Query: ",query),",",
+							cat("Query type: ",qtype),",",
+							c$uid)],
+						[$num=1]);
 			}
 		}
 	}
@@ -125,22 +125,22 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 	{
 	if (len > dns_plsize_alert && c$id$orig_p !in dns_ports_ignore && c$id$resp_p !in dns_ports_ignore)
-			{
-			NOTICE([$note=DNS::Oversized_Answer,
-					$conn=c,
-					$msg=fmt("Payload length: %sB", len),
-					$identifier=cat(c$id$orig_h,c$id$resp_h),
-					$suppress_for=20min
-					]);
+		{
+		NOTICE([$note=DNS::Oversized_Answer,
+			$conn=c,
+			$msg=fmt("Payload length: %sB", len),
+			$identifier=cat(c$id$orig_h,c$id$resp_h),
+			$suppress_for=20min
+			]);
 
-			SumStats::observe("Detect.dnsTunneling",
-					[$host=c$id$orig_h, 
-						$str=cat(c$id$orig_p,",",
-							c$id$resp_h,",",
-							c$id$resp_p,",",
-							cat("Payload length: ",len),",",
-							" ",",",
-							c$uid)],
-					[$num=1]);
+		SumStats::observe("Detect.dnsTunneling",
+				[$host=c$id$orig_h, 
+				$str=cat(c$id$orig_p,",",
+					c$id$resp_h,",",
+					c$id$resp_p,",",
+					cat("Payload length: ",len),",",
+					" ",",",
+					c$uid)],
+				[$num=1]);
 			}
 	}
