@@ -8,7 +8,7 @@ module TOR2Web;
 # Tested on Bro 2.2
 # Mike (sooshie@gmail.com)
 #
-# Tested on Bro 2.3
+# Tested on Bro 2.4
 # Brian Kellogg
 
 export {
