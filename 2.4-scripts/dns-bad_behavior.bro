@@ -21,7 +21,7 @@ export {
                 DNS::Not_p53,
         };
         # DNS names to not alert on
-        const ignore_DNS_names = /wpad|d-rco|isatap|autodiscover|gstatic\.com$|domains\._msdcs|mcafee\.com$|guascor\.com\.br$/ &redef;
+        const ignore_DNS_names = /wpad|isatap|autodiscover|gstatic\.com$|domains\._msdcs|mcafee\.com$/ &redef;
         # size at which dns query domain name is considered interesting
         const dns_query_oversize = 90 &redef;
         # query types to not alert on
