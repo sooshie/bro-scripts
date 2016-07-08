@@ -11,6 +11,11 @@ right format for this script:
 wget "http://www.malware-domains.com/files/dynamic_dns.zip" && unzip -c dynamic_dns.zip | tail -n +4 | grep -v ^# | grep -v ^$ | cut -f 1 > tmp.txt && echo -e "#fields\tdomain" > dynamic_dns.txt && cat tmp.txt | cut -d '#' -f 1 >> dynamic_dns.txt && rm tmp.txt dynamic_dns.zip
 ```
 
+OR if that file is not available a somewhat recent copy is included with this script (in origial form). To clean it up for use with Bro, do the following:
+```
+cat dynamic_dns.txt | grep -v ^# | grep -v ^$ | cut -f 1 > tmp.txt && echo -e "#fields\tdomain" > dynamic_dns.txt && cat tmp.txt | cut -d '#' -f 1 >> dynamic_dns.txt && rm tmp.txt
+```
+
 In additon to looking for the presence of dynamic DNS domains it will keep track (for 1 day)
 all IPs that resolve to a dynamic DNS domain, and flag any traffic destined to those IP addresses
 
